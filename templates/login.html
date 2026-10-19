@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | AI Interview Prep{% endblock %}
+
+{% block content %}
+<div class="container auth-wrapper py-5">
+    <div class="auth-card card">
+        <div class="auth-header text-center">
+            <div class="auth-icon-badge">🔐</div>
+            <h2>Welcome Back</h2>
+            <p class="text-muted">Sign in to your candidate or administrator account</p>
+        </div>
+
+        <!-- Presentation Demo Fast-Fill Bar -->
+        <div class="demo-quick-fill-box card mt-3">
+            <div class="quick-fill-title">⚡ Instant Demo Credentials (1-Click Fill)</div>
+            <div class="quick-fill-buttons">
+                <button type="button" class="btn btn-outline-primary btn-sm" id="fillCandidateBtn">
+                    👤 Fill Candidate
+                </button>
+                <button type="button" class="btn btn-outline-accent btn-sm" id="fillAdminBtn">
+                    🛡️ Fill Admin
+                </button>
+            </div>
+        </div>
+
+        <form id="loginForm" action="{{ url_for('login', next=request.args.get('next')) }}" method="POST" class="auth-form mt-4">
+            <!-- Email -->
+            <div class="form-group">
+                <label for="loginEmail" class="form-label">Email Address</label>
+                <div class="input-with-icon">
+                    <span class="input-icon">✉️</span>
+                    <input
+                        type="email"
+                        id="loginEmail"
+                        name="email"
+                        class="form-control"
+                        placeholder="user@interviewprep.ai"
+                        value="{{ email or '' }}"
+                        required
+                    >
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <div class="label-row">
+                    <label for="loginPassword" class="form-label">Password</label>
+                </div>
+                <div class="input-with-icon">
+                    <span class="input-icon">🔒</span>
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        name="password"
+                        class="form-control"
+                        placeholder="Enter your password"
+                        required
+                    >
+                    <button type="button" class="btn-toggle-password" id="toggleLoginPasswordBtn" title="Toggle Visibility">👁️</button>
+                </div>
+            </div>
+
+            <div class="form-group-checkbox">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="remember" value="1">
+                    <span>Keep me logged in on this browser</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg mt-3">
+                Sign In to Platform →
+            </button>
+
+            <div class="auth-footer text-center mt-4">
+                <p class="text-muted">
+                    Don't have an account yet? <a href="{{ url_for('register') }}" class="link-accent">Register here</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

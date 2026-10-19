@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Candidate Registration | AI Interview Prep{% endblock %}
+
+{% block content %}
+<div class="container auth-wrapper py-5">
+    <div class="auth-card card">
+        <div class="auth-header text-center">
+            <div class="auth-icon-badge">📝</div>
+            <h2>Create Candidate Account</h2>
+            <p class="text-muted">Register to start your personalized AI mock interview preparation</p>
+        </div>
+
+        <form id="registerForm" action="{{ url_for('register') }}" method="POST" novalidate class="auth-form mt-4">
+            <!-- Full Name -->
+            <div class="form-group">
+                <label for="fullName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                <div class="input-with-icon">
+                    <span class="input-icon">👤</span>
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="full_name"
+                        class="form-control"
+                        placeholder="John Doe"
+                        value="{{ form_data.full_name or '' }}"
+                        required
+                        pattern="^[A-Za-z ]{3,}$"
+                    >
+                </div>
+                <div class="field-feedback" id="nameFeedback">Letters and spaces only, minimum 3 characters.</div>
+            </div>
+
+            <!-- Email Address -->
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                <div class="input-with-icon">
+                    <span class="input-icon">✉️</span>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="form-control"
+                        placeholder="candidate@example.com"
+                        value="{{ form_data.email or '' }}"
+                        required
+                    >
+                </div>
+                <div class="field-feedback" id="emailFeedback">Valid RFC-compliant email format (e.g., name@domain.com).</div>
+            </div>
+
+            <!-- Contact Number -->
+            <div class="form-group">
+                <label for="phone" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                <div class="input-with-icon">
+                    <span class="input-icon">📱</span>
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        class="form-control"
+                        placeholder="9876543210"
+                        value="{{ form_data.phone or '' }}"
+                        maxlength="10"
+                        required
+                    >
+                </div>
+                <div class="field-feedback" id="phoneFeedback">Exactly 10 digits (numeric only, standard phone validation).</div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                <div class="input-with-icon">
+                    <span class="input-icon">🔒</span>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control"
+                        placeholder="Enter secure password"
+                        required
+                    >
+                    <button type="button" class="btn-toggle-password" id="togglePasswordBtn" title="Toggle Visibility">👁️</button>
+                </div>
+
+                <!-- Real-Time Password Strength Checklist -->
+                <div class="password-checklist card mt-2" id="passwordChecklist">
+                    <div class="checklist-header">Password Requirements:</div>
+                    <ul class="checklist-items">
+                        <li id="req-length" class="checklist-item">
+                            <span class="check-icon">✕</span> At least 8 characters
+                        </li>
+                        <li id="req-upper" class="checklist-item">
+                            <span class="check-icon">✕</span> At least 1 uppercase letter (A-Z)
+                        </li>
+                        <li id="req-lower" class="checklist-item">
+                            <span class="check-icon">✕</span> At least 1 lowercase letter (a-z)
+                        </li>
+                        <li id="req-number" class="checklist-item">
+                            <span class="check-icon">✕</span> At least 1 number (0-9)
+                        </li>
+                        <li id="req-special" class="checklist-item">
+                            <span class="check-icon">✕</span> At least 1 special character (!@#$%^&*)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                <div class="input-with-icon">
+                    <span class="input-icon">🔒</span>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirm_password"
+                        class="form-control"
+                        placeholder="Re-enter password"
+                        required
+                    >
+                </div>
+                <div class="field-feedback" id="confirmFeedback">Passwords must match.</div>
+            </div>
+
+            <button type="submit" id="submitRegisterBtn" class="btn btn-primary btn-block btn-lg mt-3" disabled>
+                Create Account & Start Preparing
+            </button>
+
+            <div class="auth-footer text-center mt-4">
+                <p class="text-muted">
+                    Already registered? <a href="{{ url_for('login') }}" class="link-accent">Sign in to your account</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

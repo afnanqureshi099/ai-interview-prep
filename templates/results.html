@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Scorecard #{{ interview.id }} | AI Interview Prep{% endblock %}
+
+{% block content %}
+<div class="container results-container py-4">
+    <!-- Top Action Breadcrumbs -->
+    <div class="results-actions-top no-print">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-sm">← Back to Dashboard</a>
+        <div class="action-buttons-right">
+            <button onclick="window.print()" class="btn btn-secondary btn-sm">🖨️ Print / Save Report</button>
+            <a href="{{ url_for('dashboard') }}#interviewSetupCard" class="btn btn-primary btn-sm">🎯 Practice Again</a>
+        </div>
+    </div>
+
+    <!-- Main Scorecard Hero Card -->
+    <div class="scorecard-hero card glow-card mt-3">
+        <div class="scorecard-hero-grid">
+            <div class="candidate-summary">
+                <div class="badge-row">
+                    <span class="badge badge-accent">{{ interview.domain }}</span>
+                    <span class="badge badge-diff-{{ interview.difficulty | lower }}">{{ interview.difficulty }} Seniority</span>
+                    <span class="badge badge-neutral">Session #{{ interview.id }}</span>
+                </div>
+                <h1 class="hero-candidate-name">Interview Assessment: {{ candidate.full_name }}</h1>
+                <p class="text-muted">Conducted on {{ interview.created_at[:16] }} • Duration: {{ (interview.duration_seconds // 60) }}m {{ (interview.duration_seconds % 60) }}s</p>
+
+                <!-- Verdict Alert Banner -->
+                <div class="verdict-banner mt-3">
+                    <span class="verdict-badge">{{ grade }}</span>
+                    <div class="verdict-text-box">
+                        <div class="verdict-title">Evaluation Verdict</div>
+                        <div class="verdict-desc">{{ verdict }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Big Circular/Radial Score Display -->
+            <div class="hero-score-dial-box text-center">
+                <div class="score-circle-large {% if interview.overall_score >= 80 %}circle-high{% elif interview.overall_score >= 60 %}circle-med{% else %}circle-low{% endif %}">
+                    <span class="big-score">{{ interview.overall_score }}</span>
+                    <span class="denom">/ 100</span>
+                </div>
+                <div class="score-dial-label">Composite Overall Score</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 Core Evaluation Pillars Breakdown -->
+    <div class="pillars-breakdown-grid mt-4">
+        <div class="card pillar-detail-card">
+            <div class="pillar-header">
+                <span class="p-icon">⚙️</span>
+                <h4>Technical Accuracy</h4>
+                <span class="p-score tech-text">{{ interview.technical_score }}%</span>
+            </div>
+            <div class="meter-track mt-2">
+                <div class="meter-bar tech-bar" style="width: {{ interview.technical_score }}%;"></div>
+            </div>
+            <p class="pillar-desc text-muted mt-2">
+                Demonstrated comprehension of domain-specific fundamentals, accuracy in algorithmic/system concepts, and precise terminology.
+            </p>
+        </div>
+
+        <div class="card pillar-detail-card">
+            <div class="pillar-header">
+                <span class="p-icon">🗣️</span>
+                <h4>Clarity & Articulation</h4>
+                <span class="p-score clarity-text">{{ interview.clarity_score }}%</span>
+            </div>
+            <div class="meter-track mt-2">
+                <div class="meter-bar clarity-bar" style="width: {{ interview.clarity_score }}%;"></div>
+            </div>
+            <p class="pillar-desc text-muted mt-2">
+                Structure, sentence flow, transitions, and ability to communicate complex concepts in an intuitive, digestible manner.
+            </p>
+        </div>
+
+        <div class="card pillar-detail-card">
+            <div class="pillar-header">
+                <span class="p-icon">📚</span>
+                <h4>Completeness & Depth</h4>
+                <span class="p-score comp-text">{{ interview.completeness_score }}%</span>
+            </div>
+            <div class="meter-track mt-2">
+                <div class="meter-bar comp-bar" style="width: {{ interview.completeness_score }}%;"></div>
+            </div>
+            <p class="pillar-desc text-muted mt-2">
+                Coverage of trade-offs, edge cases, implementation specifics, and suitability for the target seniority tier.
+            </p>
+        </div>
+    </div>
+
+    <!-- Question-by-Question Deep Dive Section -->
+    <div class="questions-deepdive-section mt-5">
+        <div class="section-heading-row">
+            <h3>Detailed Question Breakdown & AI Feedback ({{ answers | length }} Questions)</h3>
+            <p class="text-muted">Review your submitted responses alongside simulated AI grading and benchmark answers.</p>
+        </div>
+
+        {% for a in answers %}
+            <div class="card question-review-card mt-3">
+                <div class="review-header">
+                    <div class="q-title-row">
+                        <span class="q-num-chip">Q{{ loop.index }}</span>
+                        <h4 class="q-title-text">{{ a.question_text }}</h4>
+                    </div>
+                    <div class="q-score-chip {% if a.overall_score >= 80 %}score-high{% elif a.overall_score >= 60 %}score-med{% else %}score-low{% endif %}">
+                        {{ a.overall_score }} / 100
+                    </div>
+                </div>
+
+                <div class="review-body mt-3">
+                    <!-- Candidate's Response -->
+                    <div class="response-review-block">
+                        <div class="block-label">Your Submitted Response:</div>
+                        <div class="candidate-answer-box">
+                            <p>{{ a.user_answer }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Scores & Feedback -->
+                    <div class="feedback-grid-two-col mt-3">
+                        <div class="col-box strengths-box">
+                            <h5>✓ Strengths & Core Concepts Covered</h5>
+                            <p class="text-muted">{{ a.strengths }}</p>
+                            {% if a.matched_keywords %}
+                                <div class="kw-tag-group mt-2">
+                                    {% for kw in a.matched_keywords.split(',') %}
+                                        <span class="kw-chip matched">✓ {{ kw.strip() }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-box improvements-box">
+                            <h5>▲ Constructive Improvements</h5>
+                            <p class="text-muted">{{ a.improvements }}</p>
+                            {% if a.missing_keywords %}
+                                <div class="kw-tag-group mt-2">
+                                    {% for kw in a.missing_keywords.split(',') %}
+                                        <span class="kw-chip missing">Missing: {{ kw.strip() }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Model Gold Standard Answer Comparison -->
+                    <div class="model-answer-comparison mt-3">
+                        <div class="model-label">⭐ Benchmark Model Answer:</div>
+                        <div class="model-answer-text">
+                            <p>{{ a.model_answer }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Bottom Actions -->
+    <div class="text-center mt-5 mb-4 no-print">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-lg mr-2">Return to Dashboard</a>
+        <a href="{{ url_for('dashboard') }}#interviewSetupCard" class="btn btn-primary btn-lg">Start Another Mock Interview →</a>
+    </div>
+</div>
+{% endblock %}

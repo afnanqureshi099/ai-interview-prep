@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}AI Interview Preparation Platform | Master Technical Interviews{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-grid">
+        <div class="hero-content">
+            <div class="badge badge-accent animate-pulse-subtle">🚀 Academic Capstone Project 2026</div>
+            <h1 class="hero-title">
+                Ace Your Next Tech Interview with <span class="gradient-text">Real-Time AI Coaching</span>
+            </h1>
+            <p class="hero-subtitle">
+                Practice high-yield technical and behavioral questions across Software Engineering, Data Science, and Web Development. Receive instant multi-pillar AI feedback, scoring, and industry-standard model answers.
+            </p>
+            <div class="hero-cta-group">
+                {% if current_user %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Go to My Dashboard →</a>
+                {% else %}
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Start Free Mock Interview →</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg">Sign In</a>
+                {% endif %}
+            </div>
+
+            <!-- Demo Quick Access Credentials Bar for Presentation -->
+            <div class="demo-credentials-banner">
+                <span class="demo-tag">🎓 Presentation Ready:</span>
+                <span class="cred-chip"><strong>Admin:</strong> admin@interviewprep.ai / Admin@12345</span>
+                <span class="cred-chip"><strong>Candidate:</strong> candidate@interviewprep.ai / Candidate@123</span>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="live-preview-card card glow-card">
+                <div class="card-header-styled">
+                    <div class="window-controls">
+                        <span class="control red"></span>
+                        <span class="control yellow"></span>
+                        <span class="control green"></span>
+                    </div>
+                    <span class="card-tag">AI Evaluation Engine Live</span>
+                </div>
+                <div class="preview-body">
+                    <div class="preview-question">
+                        <span class="q-label">Question:</span>
+                        <p class="q-text">"Explain ACID properties in database transactions and why Isolation is critical."</p>
+                    </div>
+                    <div class="preview-response">
+                        <div class="response-header">Candidate Answer Analysis</div>
+                        <div class="score-pills">
+                            <span class="score-pill tech">Technical: 92/100</span>
+                            <span class="score-pill clarity">Clarity: 88/100</span>
+                            <span class="score-pill depth">Depth: 85/100</span>
+                        </div>
+                        <div class="ai-verdict">
+                            <span class="verdict-icon">💡</span>
+                            <span class="verdict-text">"Outstanding explanation of Atomicity and Durability. Next time, mention dirty read anomalies under Isolation."</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Metrics Bar -->
+<section class="metrics-bar-section">
+    <div class="container">
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-number">{{ stats.total_interviews }}</div>
+                <div class="metric-label">Completed Mock Interviews</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number">{{ stats.total_users }}</div>
+                <div class="metric-label">Registered Candidates</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number">{{ stats.avg_score }}%</div>
+                <div class="metric-label">Platform Average Score</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number">4 Domains</div>
+                <div class="metric-label">SE, DS, Web Dev & HR</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Interview Domains Section -->
+<section class="domains-section py-5">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="section-title">Comprehensive Interview Tracks</h2>
+            <p class="section-subtitle">Tailored question banks calibrated across Junior, Mid, and Senior seniority levels.</p>
+        </div>
+
+        <div class="domains-grid">
+            <!-- Software Engineering -->
+            <div class="domain-card card">
+                <div class="domain-icon-wrapper se-bg">⚙️</div>
+                <h3>Software Engineering</h3>
+                <p>System architecture, Data Structures, OOP, ACID transactions, CAP Theorem, and concurrency.</p>
+                <div class="domain-tags">
+                    <span class="tag">Junior</span>
+                    <span class="tag">Mid</span>
+                    <span class="tag">Senior</span>
+                </div>
+                <a href="{% if current_user %}{{ url_for('dashboard') }}{% else %}{{ url_for('login') }}{% endif %}" class="card-link">Start Practice →</a>
+            </div>
+
+            <!-- Data Science -->
+            <div class="domain-card card">
+                <div class="domain-icon-wrapper ds-bg">📊</div>
+                <h3>Data Science & ML</h3>
+                <p>Supervised vs Unsupervised models, Bias-Variance, Precision/Recall, Ensemble trees, and Data Drift.</p>
+                <div class="domain-tags">
+                    <span class="tag">Junior</span>
+                    <span class="tag">Mid</span>
+                    <span class="tag">Senior</span>
+                </div>
+                <a href="{% if current_user %}{{ url_for('dashboard') }}{% else %}{{ url_for('login') }}{% endif %}" class="card-link">Start Practice →</a>
+            </div>
+
+            <!-- Web Development -->
+            <div class="domain-card card">
+                <div class="domain-icon-wrapper web-bg">🌐</div>
+                <h3>Web Development</h3>
+                <p>CSS Box Model, JS Event Loop, XSS & CSRF security, REST vs GraphQL, and Core Web Vitals optimization.</p>
+                <div class="domain-tags">
+                    <span class="tag">Junior</span>
+                    <span class="tag">Mid</span>
+                    <span class="tag">Senior</span>
+                </div>
+                <a href="{% if current_user %}{{ url_for('dashboard') }}{% else %}{{ url_for('login') }}{% endif %}" class="card-link">Start Practice →</a>
+            </div>
+
+            <!-- HR / Behavioral -->
+            <div class="domain-card card">
+                <div class="domain-icon-wrapper hr-bg">🤝</div>
+                <h3>HR & Behavioral</h3>
+                <p>STAR Method responses, conflict resolution, technical disagreements, scope creep, and leadership.</p>
+                <div class="domain-tags">
+                    <span class="tag">Junior</span>
+                    <span class="tag">Mid</span>
+                    <span class="tag">Senior</span>
+                </div>
+                <a href="{% if current_user %}{{ url_for('dashboard') }}{% else %}{{ url_for('login') }}{% endif %}" class="card-link">Start Practice →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works-section py-5">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="section-title">How The AI Platform Works</h2>
+            <p class="section-subtitle">A streamlined, production-grade simulation of the real hiring funnel.</p>
+        </div>
+
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">01</div>
+                <h4>Select Track & Difficulty</h4>
+                <p>Configure domain and seniority level. Dynamic questions are served from the verified question bank.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">02</div>
+                <h4>Answer via Text or Speech</h4>
+                <p>Type your response or use hands-free browser Speech-to-Text dictation under a simulated countdown timer.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">03</div>
+                <h4>Multi-Pillar AI Scoring</h4>
+                <p>Analyzed instantly on Technical Accuracy, Communication Clarity, and Response Completeness (0-100 scale).</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">04</div>
+                <h4>Model Answer Comparison</h4>
+                <p>Review matched concepts, missing keywords, and benchmark answers to continuously elevate your performance.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="cta-banner-section py-5">
+    <div class="container">
+        <div class="cta-banner card text-center">
+            <h2>Ready to Test Your Technical Readiness?</h2>
+            <p class="text-muted">Start an instant simulated interview in under 60 seconds with zero setup.</p>
+            <div class="mt-4">
+                {% if current_user %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Launch My Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Create Candidate Account</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg ml-2">Log In</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

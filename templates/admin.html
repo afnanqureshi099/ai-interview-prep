@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Control Center | AI Interview Prep{% endblock %}
+
+{% block content %}
+<div class="container admin-container py-4">
+    <!-- Admin Header Banner -->
+    <div class="admin-header card glow-card">
+        <div class="header-left">
+            <div class="badge-row">
+                <span class="badge badge-accent">Administrator Portal</span>
+                <span class="badge badge-success">System Operational</span>
+            </div>
+            <h1 class="admin-title">System Administration & Oversight</h1>
+            <p class="text-muted">Manage candidate accounts, curate the technical question bank, and audit platform interview submissions.</p>
+        </div>
+        <div class="header-right">
+            <span class="admin-session-chip">🛡️ Logged in as: {{ current_user.email }}</span>
+        </div>
+    </div>
+
+    <!-- System Metrics High-Level KPIs -->
+    <div class="metrics-grid-admin mt-4">
+        <div class="metric-card-admin card">
+            <div class="m-icon blue">👥</div>
+            <div class="m-data">
+                <div class="m-val">{{ metrics.total_users }}</div>
+                <div class="m-lbl">Registered Candidates</div>
+                <div class="m-sub">{{ metrics.active_users }} active accounts</div>
+            </div>
+        </div>
+
+        <div class="metric-card-admin card">
+            <div class="m-icon green">🎯</div>
+            <div class="m-data">
+                <div class="m-val">{{ metrics.total_interviews }}</div>
+                <div class="m-lbl">Total Interviews Taken</div>
+                <div class="m-sub">Simulated AI evaluations</div>
+            </div>
+        </div>
+
+        <div class="metric-card-admin card">
+            <div class="m-icon purple">📊</div>
+            <div class="m-data">
+                <div class="m-val">{{ metrics.avg_score }}%</div>
+                <div class="m-lbl">Platform Average Score</div>
+                <div class="m-sub">Across all tracks</div>
+            </div>
+        </div>
+
+        <div class="metric-card-admin card">
+            <div class="m-icon orange">📚</div>
+            <div class="m-data">
+                <div class="m-val">{{ metrics.total_questions }}</div>
+                <div class="m-lbl">Active Question Bank</div>
+                <div class="m-sub">Across 4 domains</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Navigation Tabs -->
+    <div class="admin-tabs-nav mt-4">
+        <button class="tab-btn active" onclick="switchAdminTab('usersTab', this)">
+            👥 User Management ({{ users | length }})
+        </button>
+        <button class="tab-btn" onclick="switchAdminTab('questionsTab', this)">
+            📚 Question Bank ({{ questions | length }})
+        </button>
+        <button class="tab-btn" onclick="switchAdminTab('submissionsTab', this)">
+            📑 Audit Log & Submissions ({{ submissions | length }})
+        </button>
+    </div>
+
+    <!-- TAB 1: User Management -->
+    <div class="admin-tab-content active mt-3" id="usersTab">
+        <div class="card">
+            <div class="card-header-styled">
+                <div class="header-icon">👥</div>
+                <div class="flex-grow">
+                    <h3>Candidate User Accounts</h3>
+                    <p class="text-muted">Monitor candidate profiles, toggle access status, or delete accounts.</p>
+                </div>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Candidate Name</th>
+                            <th>Email Address</th>
+                            <th>Contact Phone</th>
+                            <th>Registration Date</th>
+                            <th>Interviews</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                            <tr>
+                                <td><code>#{{ u.id }}</code></td>
+                                <td><strong>{{ u.full_name }}</strong></td>
+                                <td>{{ u.email }}</td>
+                                <td><code>{{ u.phone }}</code></td>
+                                <td class="text-muted">{{ u.created_at[:10] }}</td>
+                                <td><span class="badge badge-neutral">{{ u.interview_count }} attempts</span></td>
+                                <td>
+                                    {% if u.status == 'active' %}
+                                        <span class="badge badge-success">Active</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">Deactivated</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-btn-group">
+                                        <!-- Toggle Status -->
+                                        <form method="POST" action="{{ url_for('admin_toggle_user_status', user_id=u.id) }}" style="display:inline;">
+                                            <button type="submit" class="btn btn-outline-warning btn-xs" title="Toggle Active/Deactivate">
+                                                {% if u.status == 'active' %}Deactivate{% else %}Activate{% endif %}
+                                            </button>
+                                        </form>
+
+                                        <!-- Delete User -->
+                                        <form method="POST" action="{{ url_for('admin_delete_user', user_id=u.id) }}" style="display:inline;" onsubmit="return confirm('Permanently delete candidate {{ u.full_name }} and all their interview records?');">
+                                            <button type="submit" class="btn btn-outline-danger btn-xs" title="Delete User">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Question Bank Management -->
+    <div class="admin-tab-content mt-3" id="questionsTab">
+        <div class="card">
+            <div class="card-header-styled">
+                <div class="header-icon">📚</div>
+                <div class="flex-grow">
+                    <h3>Question Bank Management</h3>
+                    <p class="text-muted">Curate technical questions, required concepts, and benchmark model answers.</p>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="openAddQuestionModal()">
+                    + Add New Question
+                </button>
+            </div>
+
+            <!-- Domain Filter -->
+            <div class="filter-row mt-3">
+                <form method="GET" action="{{ url_for('admin_dashboard') }}" class="filter-form">
+                    <span class="filter-label">Filter Domain:</span>
+                    <select name="q_domain" onchange="this.form.submit()" class="form-control form-select-sm">
+                        <option value="">All Domains</option>
+                        <option value="Software Engineering" {% if selected_q_domain == 'Software Engineering' %}selected{% endif %}>Software Engineering</option>
+                        <option value="Data Science" {% if selected_q_domain == 'Data Science' %}selected{% endif %}>Data Science & ML</option>
+                        <option value="Web Development" {% if selected_q_domain == 'Web Development' %}selected{% endif %}>Web Development</option>
+                        <option value="HR/Behavioral" {% if selected_q_domain == 'HR/Behavioral' %}selected{% endif %}>HR & Behavioral</option>
+                    </select>
+                    {% if selected_q_domain %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm ml-2">Clear Filter</a>
+                    {% endif %}
+                </form>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Domain</th>
+                            <th>Difficulty</th>
+                            <th>Question Prompt</th>
+                            <th>Expected Core Keywords</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for q in questions %}
+                            <tr>
+                                <td><code>#{{ q.id }}</code></td>
+                                <td><span class="badge badge-accent">{{ q.domain }}</span></td>
+                                <td><span class="badge badge-diff-{{ q.difficulty | lower }}">{{ q.difficulty }}</span></td>
+                                <td class="text-truncate-2" style="max-width: 320px;">
+                                    <strong>{{ q.question_text }}</strong>
+                                </td>
+                                <td class="text-truncate-2 text-muted" style="max-width: 200px;">
+                                    <code>{{ q.expected_keywords }}</code>
+                                </td>
+                                <td>
+                                    {% if q.is_active == 1 %}
+                                        <span class="badge badge-success">Active</span>
+                                    {% else %}
+                                        <span class="badge badge-neutral">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-btn-group">
+                                        <button type="button" class="btn btn-outline-secondary btn-xs" onclick='openEditQuestionModal({{ q | tojson | safe }})'>
+                                            Edit
+                                        </button>
+                                        <form method="POST" action="{{ url_for('admin_delete_question', question_id=q.id) }}" style="display:inline;" onsubmit="return confirm('Delete question #{{ q.id }}?');">
+                                            <button type="submit" class="btn btn-outline-danger btn-xs">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: Audit Log / Submissions View -->
+    <div class="admin-tab-content mt-3" id="submissionsTab">
+        <div class="card">
+            <div class="card-header-styled">
+                <div class="header-icon">📑</div>
+                <div class="flex-grow">
+                    <h3>Interview Submissions & Audit Log</h3>
+                    <p class="text-muted">Review candidate mock attempts, system feedback, and evaluation scores.</p>
+                </div>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Session ID</th>
+                            <th>Candidate</th>
+                            <th>Domain Track</th>
+                            <th>Difficulty</th>
+                            <th>Composite Score</th>
+                            <th>Technical</th>
+                            <th>Clarity</th>
+                            <th>Completeness</th>
+                            <th>Timestamp</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in submissions %}
+                            <tr>
+                                <td><code>#{{ s.id }}</code></td>
+                                <td>
+                                    <strong>{{ s.full_name }}</strong>
+                                    <div class="text-muted text-xs">{{ s.email }}</div>
+                                </td>
+                                <td>{{ s.domain }}</td>
+                                <td><span class="badge badge-diff-{{ s.difficulty | lower }}">{{ s.difficulty }}</span></td>
+                                <td>
+                                    <span class="score-badge-inline {% if s.overall_score >= 80 %}score-high{% elif s.overall_score >= 60 %}score-med{% else %}score-low{% endif %}">
+                                        {{ s.overall_score }}%
+                                    </span>
+                                </td>
+                                <td>{{ s.technical_score }}%</td>
+                                <td>{{ s.clarity_score }}%</td>
+                                <td>{{ s.completeness_score }}%</td>
+                                <td class="text-muted">{{ s.created_at[:16] }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_results', session_id=s.id) }}" class="btn btn-outline-primary btn-xs">
+                                        Inspect Scorecard →
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 1: Add New Question -->
+<div class="modal-overlay d-none" id="addQuestionModal">
+    <div class="modal-card card">
+        <div class="modal-header">
+            <h3>+ Add New Question to Bank</h3>
+            <button type="button" class="modal-close-btn" onclick="closeAddQuestionModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('admin_add_question') }}" class="modal-form mt-3">
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label">Domain Track</label>
+                    <select name="domain" class="form-control" required>
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Web Development">Web Development</option>
+                        <option value="HR/Behavioral">HR/Behavioral</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Difficulty Tier</label>
+                    <select name="difficulty" class="form-control" required>
+                        <option value="Junior">Junior</option>
+                        <option value="Mid" selected>Mid</option>
+                        <option value="Senior">Senior</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="form-label">Question Text / Prompt</label>
+                <textarea name="question_text" class="form-control" rows="3" placeholder="Enter clear, comprehensive question prompt..." required></textarea>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="form-label">Expected Key Concepts / Keywords (comma-separated)</label>
+                <input type="text" name="expected_keywords" class="form-control" placeholder="e.g. process, thread, memory, context switch, stack" required>
+                <small class="text-muted">The AI evaluator scans candidate answers for these essential domain concepts.</small>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="form-label">Benchmark Model Answer (Gold Standard)</label>
+                <textarea name="model_answer" class="form-control" rows="4" placeholder="Enter the ideal high-caliber answer..." required></textarea>
+            </div>
+
+            <div class="modal-footer mt-4">
+                <button type="button" class="btn btn-secondary" onclick="closeAddQuestionModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save to Question Bank</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal 2: Edit Question -->
+<div class="modal-overlay d-none" id="editQuestionModal">
+    <div class="modal-card card">
+        <div class="modal-header">
+            <h3>Edit Question <span id="editQIdSpan"></span></h3>
+            <button type="button" class="modal-close-btn" onclick="closeEditQuestionModal()">&times;</button>
+        </div>
+        <form id="editQuestionForm" method="POST" action="" class="modal-form mt-3">
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label class="form-label">Domain Track</label>
+                    <select name="domain" id="editDomain" class="form-control" required>
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Web Development">Web Development</option>
+                        <option value="HR/Behavioral">HR/Behavioral</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Difficulty Tier</label>
+                    <select name="difficulty" id="editDifficulty" class="form-control" required>
+                        <option value="Junior">Junior</option>
+                        <option value="Mid">Mid</option>
+                        <option value="Senior">Senior</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="form-label">Question Text</label>
+                <textarea name="question_text" id="editQuestionText" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="form-label">Expected Core Keywords</label>
+                <input type="text" name="expected_keywords" id="editKeywords" class="form-control" required>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="form-label">Benchmark Model Answer</label>
+                <textarea name="model_answer" id="editModelAnswer" class="form-control" rows="4" required></textarea>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="form-label">Question Status</label>
+                <select name="is_active" id="editIsActive" class="form-control">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+            </div>
+
+            <div class="modal-footer mt-4">
+                <button type="button" class="btn btn-secondary" onclick="closeEditQuestionModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Update Question</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function switchAdminTab(tabId, btnElem) {
+        document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btnElem.classList.add('active');
+    }
+
+    function openAddQuestionModal() {
+        document.getElementById('addQuestionModal').classList.remove('d-none');
+    }
+
+    function closeAddQuestionModal() {
+        document.getElementById('addQuestionModal').classList.add('d-none');
+    }
+
+    function openEditQuestionModal(qData) {
+        document.getElementById('editQIdSpan').textContent = '#' + qData.id;
+        document.getElementById('editQuestionForm').action = '/admin/questions/' + qData.id + '/edit';
+        document.getElementById('editDomain').value = qData.domain;
+        document.getElementById('editDifficulty').value = qData.difficulty;
+        document.getElementById('editQuestionText').value = qData.question_text;
+        document.getElementById('editKeywords').value = qData.expected_keywords;
+        document.getElementById('editModelAnswer').value = qData.model_answer;
+        document.getElementById('editIsActive').value = qData.is_active;
+        document.getElementById('editQuestionModal').classList.remove('d-none');
+    }
+
+    function closeEditQuestionModal() {
+        document.getElementById('editQuestionModal').classList.add('d-none');
+    }
+</script>
+{% endblock %}

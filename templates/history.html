@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Interview History & Scorecards | AI Interview Prep{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card glow-card">
+        <div class="card-header-styled">
+            <div class="header-icon">📜</div>
+            <div class="flex-grow">
+                <h2>Interview History & Records</h2>
+                <p class="text-muted">Review all completed simulated mock sessions and track score progression</p>
+            </div>
+            <a href="{{ url_for('dashboard') }}#interviewSetupCard" class="btn btn-primary btn-sm">
+                + Launch New Interview
+            </a>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="history-filter-bar mt-3">
+            <form method="GET" action="{{ url_for('history') }}" class="filter-form">
+                <span class="filter-label">Filter by Domain:</span>
+                <select name="domain" onchange="this.form.submit()" class="form-control form-select-sm">
+                    <option value="">All Domains</option>
+                    <option value="Software Engineering" {% if selected_domain == 'Software Engineering' %}selected{% endif %}>Software Engineering</option>
+                    <option value="Data Science" {% if selected_domain == 'Data Science' %}selected{% endif %}>Data Science & ML</option>
+                    <option value="Web Development" {% if selected_domain == 'Web Development' %}selected{% endif %}>Web Development</option>
+                    <option value="HR/Behavioral" {% if selected_domain == 'HR/Behavioral' %}selected{% endif %}>HR & Behavioral</option>
+                </select>
+                {% if selected_domain %}
+                    <a href="{{ url_for('history') }}" class="btn btn-outline-secondary btn-sm ml-2">Clear Filter</a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if sessions %}
+            <div class="table-responsive mt-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Domain Track</th>
+                            <th>Difficulty Tier</th>
+                            <th>Questions</th>
+                            <th>Overall Score</th>
+                            <th>Technical</th>
+                            <th>Clarity</th>
+                            <th>Completeness</th>
+                            <th>Date & Time</th>
+                            <th>Scorecard</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in sessions %}
+                            <tr>
+                                <td><code>#{{ s.id }}</code></td>
+                                <td><strong>{{ s.domain }}</strong></td>
+                                <td><span class="badge badge-diff-{{ s.difficulty | lower }}">{{ s.difficulty }}</span></td>
+                                <td>{{ s.total_questions }}</td>
+                                <td>
+                                    <span class="score-badge-inline {% if s.overall_score >= 80 %}score-high{% elif s.overall_score >= 60 %}score-med{% else %}score-low{% endif %}">
+                                        {{ s.overall_score }}%
+                                    </span>
+                                </td>
+                                <td>{{ s.technical_score }}%</td>
+                                <td>{{ s.clarity_score }}%</td>
+                                <td>{{ s.completeness_score }}%</td>
+                                <td class="text-muted">{{ s.created_at[:16] }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_results', session_id=s.id) }}" class="btn btn-outline-primary btn-sm">
+                                        View Full Report →
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state text-center py-5">
+                <div class="empty-icon">📭</div>
+                <h4>No Interview Records Found</h4>
+                <p class="text-muted">No mock interviews matching your criteria.</p>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary mt-2">Go to Dashboard</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

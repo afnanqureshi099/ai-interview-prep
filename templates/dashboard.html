@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Candidate Dashboard | AI Interview Prep{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container py-4">
+    <!-- Candidate Welcome & Profile Banner -->
+    <div class="welcome-banner card glow-card">
+        <div class="welcome-profile">
+            <div class="profile-avatar-large">
+                {{ user.full_name[:1] | upper }}
+            </div>
+            <div class="profile-info">
+                <div class="badge-row">
+                    <span class="badge badge-accent">Candidate Dashboard</span>
+                    <span class="badge badge-success">Status: Active</span>
+                </div>
+                <h1 class="welcome-title">Welcome, {{ user.full_name }}!</h1>
+                <div class="profile-meta">
+                    <span>✉️ {{ user.email }}</span>
+                    <span>📱 +91 {{ user.phone }}</span>
+                    <span>🗓️ Joined {{ user.created_at[:10] }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="welcome-action">
+            <a href="#interviewSetupCard" class="btn btn-primary btn-lg">
+                🎯 Launch New Mock Interview
+            </a>
+        </div>
+    </div>
+
+    <!-- Candidate Performance Statistics Grid -->
+    <div class="stats-grid mt-4">
+        <div class="stat-box card">
+            <div class="stat-icon-wrapper blue">📋</div>
+            <div class="stat-data">
+                <div class="stat-value">{{ stats.total_interviews }}</div>
+                <div class="stat-label">Interviews Completed</div>
+            </div>
+        </div>
+
+        <div class="stat-box card">
+            <div class="stat-icon-wrapper green">📊</div>
+            <div class="stat-data">
+                <div class="stat-value">{{ stats.avg_score }}%</div>
+                <div class="stat-label">Average Score</div>
+            </div>
+        </div>
+
+        <div class="stat-box card">
+            <div class="stat-icon-wrapper purple">🏆</div>
+            <div class="stat-data">
+                <div class="stat-value">{{ stats.highest_score }}%</div>
+                <div class="stat-label">Highest Score</div>
+            </div>
+        </div>
+
+        <div class="stat-box card">
+            <div class="stat-icon-wrapper orange">🎯</div>
+            <div class="stat-data">
+                <div class="stat-value stat-small">{{ stats.top_domain }}</div>
+                <div class="stat-label">Top Practiced Domain</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-split-grid mt-4">
+        <!-- Mock Interview Setup Module -->
+        <div class="card setup-interview-card" id="interviewSetupCard">
+            <div class="card-header-styled">
+                <div class="header-icon">🚀</div>
+                <div>
+                    <h3>Setup Live Mock Interview</h3>
+                    <p class="text-muted">Choose your technical track and target seniority level</p>
+                </div>
+            </div>
+
+            <form action="{{ url_for('start_interview') }}" method="POST" class="interview-setup-form mt-3">
+                <!-- Domain Selection -->
+                <div class="form-group">
+                    <label class="form-label font-bold">1. Select Domain / Track</label>
+                    <div class="domain-radio-grid">
+                        <label class="radio-card selected">
+                            <input type="radio" name="domain" value="Software Engineering" checked>
+                            <span class="radio-card-content">
+                                <span class="radio-emoji">⚙️</span>
+                                <span class="radio-title">Software Engineering</span>
+                                <span class="radio-desc">Data structures, OOP, System design, ACID</span>
+                            </span>
+                        </label>
+
+                        <label class="radio-card">
+                            <input type="radio" name="domain" value="Data Science">
+                            <span class="radio-card-content">
+                                <span class="radio-emoji">📊</span>
+                                <span class="radio-title">Data Science & ML</span>
+                                <span class="radio-desc">Supervised/unsupervised, Bias-variance, Metrics</span>
+                            </span>
+                        </label>
+
+                        <label class="radio-card">
+                            <input type="radio" name="domain" value="Web Development">
+                            <span class="radio-card-content">
+                                <span class="radio-emoji">🌐</span>
+                                <span class="radio-title">Web Development</span>
+                                <span class="radio-desc">JS Event Loop, XSS/CSRF, REST vs GraphQL</span>
+                            </span>
+                        </label>
+
+                        <label class="radio-card">
+                            <input type="radio" name="domain" value="HR/Behavioral">
+                            <span class="radio-card-content">
+                                <span class="radio-emoji">🤝</span>
+                                <span class="radio-title">HR & Behavioral</span>
+                                <span class="radio-desc">STAR method, Conflict handling, Leadership</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Difficulty Selection -->
+                <div class="form-group mt-3">
+                    <label class="form-label font-bold">2. Seniority & Difficulty Tier</label>
+                    <div class="difficulty-button-group">
+                        <label class="diff-btn">
+                            <input type="radio" name="difficulty" value="Junior">
+                            <span class="diff-chip junior">Junior (0-2 Yrs)</span>
+                        </label>
+                        <label class="diff-btn">
+                            <input type="radio" name="difficulty" value="Mid" checked>
+                            <span class="diff-chip mid">Mid-Level (2-5 Yrs)</span>
+                        </label>
+                        <label class="diff-btn">
+                            <input type="radio" name="difficulty" value="Senior">
+                            <span class="diff-chip senior">Senior (5+ Yrs)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question Count Selection -->
+                <div class="form-group mt-3">
+                    <label class="form-label font-bold" for="questionCount">3. Number of Questions</label>
+                    <select name="question_count" id="questionCount" class="form-control form-select">
+                        <option value="2">2 Questions (Express Quick Sprint - ~5 mins)</option>
+                        <option value="3" selected>3 Questions (Standard Mock - ~10 mins)</option>
+                        <option value="5">5 Questions (Comprehensive Rigor - ~20 mins)</option>
+                    </select>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary btn-block btn-lg">
+                        🚀 Start Live Interview Session
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Preparation Tips & Best Practices -->
+        <div class="dashboard-sidebar">
+            <div class="card tips-card">
+                <div class="card-header-simple">
+                    <h4>💡 AI Evaluator Tips</h4>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-num">01</span>
+                    <div>
+                        <strong>Be Technically Precise:</strong>
+                        <p class="text-muted">Mention fundamental computer science and domain terminology (e.g., time complexity, memory trade-offs).</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-num">02</span>
+                    <div>
+                        <strong>Structure Your Answers:</strong>
+                        <p class="text-muted">Use transitions like "Firstly", "In addition", and "For instance". For behavioral questions, strictly follow the STAR method.</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-num">03</span>
+                    <div>
+                        <strong>Practice Hands-Free:</strong>
+                        <p class="text-muted">Use the browser Microphone button in the interview room to simulate vocal interview cadence.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Mock Attempts Table -->
+    <div class="card mt-4">
+        <div class="card-header-styled">
+            <div class="header-icon">📑</div>
+            <div class="flex-grow">
+                <h3>Recent Mock Interview Attempts</h3>
+                <p class="text-muted">Track your progress and review detailed AI scorecards</p>
+            </div>
+            <a href="{{ url_for('history') }}" class="btn btn-outline-primary btn-sm">View All History →</a>
+        </div>
+
+        {% if recent_sessions %}
+            <div class="table-responsive mt-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th>Domain Track</th>
+                            <th>Difficulty</th>
+                            <th>Questions</th>
+                            <th>Overall Score</th>
+                            <th>Pillars Breakdown</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in recent_sessions %}
+                            <tr>
+                                <td><code>#{{ s.id }}</code></td>
+                                <td>
+                                    <strong>{{ s.domain }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge badge-diff-{{ s.difficulty | lower }}">{{ s.difficulty }}</span>
+                                </td>
+                                <td>{{ s.total_questions }} Qs</td>
+                                <td>
+                                    <div class="score-badge-inline {% if s.overall_score >= 80 %}score-high{% elif s.overall_score >= 60 %}score-med{% else %}score-low{% endif %}">
+                                        {{ s.overall_score }}%
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="pillar-mini-bars" title="Tech: {{ s.technical_score }}% | Clarity: {{ s.clarity_score }}% | Depth: {{ s.completeness_score }}%">
+                                        <span class="mini-bar-pill tech-bg" style="width: {{ s.technical_score }}%;">T: {{ s.technical_score | int }}%</span>
+                                        <span class="mini-bar-pill clar-bg" style="width: {{ s.clarity_score }}%;">C: {{ s.clarity_score | int }}%</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted">{{ s.created_at[:16] }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_results', session_id=s.id) }}" class="btn btn-outline-primary btn-sm">
+                                        View Scorecard →
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state text-center py-5">
+                <div class="empty-icon">🎯</div>
+                <h4>No Interview Attempts Yet</h4>
+                <p class="text-muted">You haven't completed any mock interviews. Launch your first session above!</p>
+                <a href="#interviewSetupCard" class="btn btn-primary mt-2">Start First Mock Session</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
